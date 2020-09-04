@@ -1,0 +1,585 @@
+{
+
+    "AWSTemplateFormatVersion": "2010-09-09",
+
+    "Description": "AWS CloudFormation Template: Creates a codepipeline for Cash Application Angular deployments",
+
+    "Parameters": {
+
+        "RepositoryName": {
+
+            "Description": "The name of the Github repo",
+
+            "Type": "String",
+
+            "Default": "cync-devops-pipeline-scripts",
+
+            "AllowedPattern": "[\\x20-\\x7E]*",
+
+            "ConstraintDescription": "Can contain only ASCII characters."
+
+        },
+
+        "S3Objectkeyname":{
+
+            "Type": "String",
+
+            "Default": "*",
+
+            "Description": "Enter name of the object in the bucket"
+
+            },
+
+        "S3BucketName":{
+
+            "Type": "String",
+
+            "Default": "artifact-test",
+
+            "Description": "Enter name of bucket to store data"
+
+        },
+
+        "WebhookName": {
+
+            "Description": "The name of the Webhook",
+
+            "Type": "String",
+
+            "Default": "Cync-Nds-Dev-Webhooks",
+
+            "AllowedPattern": "[\\x20-\\x7E]*",
+
+            "ConstraintDescription": "Can contain only ASCII characters."
+
+        },
+
+        "RepositoryBranch": {
+
+            "Description": "The name of the branch for the Github repo",
+
+            "Type": "String",
+
+            "Default": "development",
+
+            "AllowedPattern": "[\\x20-\\x7E]*",
+
+            "ConstraintDescription": "Can contain only ASCII characters."
+
+        },
+
+        
+
+         "CodepipelineArtifactBucket": {
+
+            "Type": "String",
+
+            "Default": "codepipeline-us-east-1-782480229791",
+
+            "Description": "Enter the bucket name where the Codepipeline stage artifacts stores"
+
+        },
+
+        
+
+        
+
+        "GitHubSecretName": {
+
+            "Type": "String",
+
+            "Default": "/devops/poc/tokens",
+
+            "NoEcho": true
+
+        },
+
+        "GitHubSecretKey": {
+
+            "Type": "String",
+
+            "Default": "SCToken",
+
+            "NoEcho": true
+
+        },
+
+       
+
+        "GitHubOwner": {
+
+            "Type": "String"
+
+        },
+
+        "Authentication": {
+
+            "Type": "String",
+
+            "Default": "GITHUB_HMAC",
+
+            "AllowedValues": [
+
+                "GITHUB_HMAC",
+
+                "IP",
+
+                "UNAUTHENTICATED"
+
+            ]
+
+        },
+
+        "JsonPath": {
+
+            "Type": "String",
+
+            "Default": "$.ref"
+
+        },
+
+        "MatchEquals": {
+
+            "Type": "String",
+
+            "Default": "refs/heads/{Branch}"
+
+        }
+
+    },
+
+    "Resources": {
+
+        "Webhook": {
+
+            "Type": "AWS::CodePipeline::Webhook",
+
+            "Properties": {
+
+                "AuthenticationConfiguration": {
+
+                    "SecretToken": {
+
+                        "Fn::Sub": "{{resolve:secretsmanager:${GitHubSecretName}:SecretString:${GitHubSecretKey}}}"
+
+                    }
+
+                },
+
+                "Filters": [
+
+                    {
+
+                        "JsonPath": {
+
+                            "Ref": "JsonPath"
+
+                        },
+
+                        "MatchEquals": {
+
+                            "Ref": "MatchEquals"
+
+                        }
+
+                    }
+
+                ],
+
+                "Authentication": {
+
+                    "Ref": "Authentication"
+
+                },
+
+                "TargetPipeline": {
+
+                    "Ref": "CodePipeline"
+
+                },
+
+                "TargetAction": "Source",
+
+                "Name": {
+
+                    "Ref": "WebhookName"
+
+                },
+
+                "TargetPipelineVersion": {
+
+                    "Fn::GetAtt": [
+
+                        "CodePipeline",
+
+                        "Version"
+
+                    ]
+
+                },
+
+                "RegisterWithThirdParty": "true"
+
+            }
+
+        },
+
+         "CodePipelineRole": {
+
+            "Type": "AWS::IAM::Role",
+
+            "Properties": {
+
+                "AssumeRolePolicyDocument": {
+
+                    "Statement": [
+
+                        {
+
+                            "Effect": "Allow",
+
+                            "Principal": {
+
+                                "Service": [
+
+                                    "codepipeline.amazonaws.com"
+
+                                ]
+
+                            },
+
+                            "Action": [
+
+                                "sts:AssumeRole"
+
+                            ]
+
+                        }
+
+                    ]
+
+                },
+
+                "Path": "/",
+
+                "Policies": [
+
+                    {
+
+                        "PolicyName": "codepipeline-service",
+
+                        "PolicyDocument": {
+
+                            "Statement": [
+
+                                {
+
+                                    "Effect": "Allow",
+
+                                    "Action": [
+
+                                        "codepipeline:PutJobSuccessResult",
+
+                                        "codepipeline:PutJobFailureResult"
+
+                                    ],
+
+                                    "Resource": [
+
+                                        "*"
+
+                                    ]
+
+                                },
+
+                                {
+
+                                    "Action": [
+
+                                        "s3:GetObject",
+
+                                        "s3:GetObjectVersion",
+
+                                        "s3:GetBucketVersioning"
+
+                                    ],
+
+                                    "Resource":  [
+
+                                        {
+
+                                            "Fn::Sub": "arn:aws:s3:::${S3BucketName}"
+
+                                        },
+
+                                         {
+
+                                            "Fn::Sub": "arn:aws:s3:::${CodepipelineArtifactBucket}/*"
+
+                                        }
+
+                                       
+
+                                    ],
+
+                                    "Effect": "Allow"
+
+                                },
+
+                                {
+
+                                    "Action": [
+
+                                        "s3:ListBucket"
+
+                                    ],
+
+                                    "Resource": [
+
+                                        {
+
+                                            "Fn::Sub": "arn:aws:s3:::${S3BucketName}"
+
+                                        },
+
+                                         {
+
+                                            "Fn::Sub": "arn:aws:s3:::${CodepipelineArtifactBucket}"
+
+                                        }
+
+                                       
+
+                                    ],
+
+                                    "Effect": "Allow"
+
+                                },
+
+                                {
+
+                                    "Action": "s3:PutObject",
+
+                                    "Resource":[{
+
+                                            "Fn::Sub": "arn:aws:s3:::${CodepipelineArtifactBucket}/*"
+
+                                        },
+
+                                        {
+
+                                            "Fn::Sub": "arn:aws:s3:::${S3BucketName}/*"
+
+                                        }],
+
+                                    "Effect": "Allow"
+
+                                },
+
+                                {
+
+                                    "Action": "codedeploy:ContinueDeployment",
+
+                                    "Resource":"*",
+
+                                    "Effect": "Allow"
+
+                                }
+
+                               
+
+                            ],
+
+                            "Version": "2012-10-17"
+
+                        }
+
+                    }
+
+                ]
+
+            }
+
+        },
+
+        "CodePipeline": {
+
+            "Type": "AWS::CodePipeline::Pipeline",
+
+            "Properties": {
+
+                "RoleArn": {
+
+                    "Fn::Join": [
+
+                        "",
+
+                        [
+
+                            "arn:aws:iam::",
+
+                            {
+
+                                "Ref": "AWS::AccountId"
+
+                            },
+
+                            ":role/",
+
+                            {
+
+                                "Ref": "CodePipelineRole"
+
+                            }
+
+                        ]
+
+                    ]
+
+                },
+
+                "Stages": [
+
+                    {
+
+                        "Name": "Source",
+
+                        "Actions": [
+
+                            {
+
+                                "Name": "Source",
+
+                                "InputArtifacts": [],
+
+                                "ActionTypeId": {
+
+                                    "Category": "Source",
+
+                                    "Owner": "ThirdParty",
+
+                                    "Version": "1",
+
+                                    "Provider": "GitHub"
+
+                                },
+
+                                "OutputArtifacts": [
+
+                                    {
+
+                                        "Name": "SourceCode"
+
+                                    }
+
+                                ],
+
+                                "Configuration": {
+
+                                    "Owner": {
+
+                                        "Ref": "GitHubOwner"
+
+                                    },
+
+                                    "OAuthToken": {
+
+                                        "Fn::Sub": "{{resolve:secretsmanager:${GitHubSecretName}:SecretString:${GitHubSecretKey}}}"
+
+                                    },
+
+                                    "Branch": {
+
+                                        "Ref": "RepositoryBranch"
+
+                                    },
+
+                                    "Repo": {
+
+                                        "Ref": "RepositoryName"
+
+                                    },
+
+                                    "PollForSourceChanges": "false"
+
+                                },
+
+                                "RunOrder": 1
+
+                            }
+
+                        ]
+
+                    },
+
+                   { 
+
+        "Name": "Release",
+
+        "Actions": [ 
+
+          { 
+
+            "Name": "ReleaseAction",
+
+            "InputArtifacts": [ 
+
+              { 
+
+                "Name": "SourceCode" 
+
+              } 
+
+            ], 
+
+            "ActionTypeId": { 
+
+              "Category": "Deploy", 
+
+              "Owner": "AWS",
+
+              "Version": "1", 
+
+              "Provider": "S3" 
+
+            }, 
+
+            "Configuration": { 
+
+              "BucketName":{"Ref":"S3BucketName"}, 
+
+                "Extract":"false",
+
+              "ObjectKey": {"Ref":"S3Objectkeyname"}
+
+            }, 
+
+            "RunOrder": 1
+
+          } 
+
+        ] 
+
+      }
+
+                ],
+
+                "ArtifactStore": {
+
+                    "Type": "S3",
+
+                    "Location": {
+
+                        "Ref": "CodepipelineArtifactBucket"
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+}
