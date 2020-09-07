@@ -3,7 +3,7 @@
   "Parameters": {
 	"EC2ImageId":{
          "Type":"String",
-         "Default":"ami-9b168de4",
+         "Default":"ami-0ef2b027d2d107729",
          "Description":"ImageId for Nginx LaunchConfig"
       },
       "EC2InstanceType":{
