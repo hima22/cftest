@@ -12,7 +12,7 @@
 
             "Type": "String",
 
-            "Default": "cync-devops-pipeline-scripts",
+            "Default": "cftest",
 
             "AllowedPattern": "[\\x20-\\x7E]*",
 
@@ -20,39 +20,39 @@
 
         },
 
-        "S3Objectkeyname":{
+       # "S3Objectkeyname":{
 
-            "Type": "String",
+          # "Type": "String",
 
-            "Default": "*",
+           # "Default": "*",
 
-            "Description": "Enter name of the object in the bucket"
+           # "Description": "Enter name of the object in the bucket"
 
-            },
+          #  },
 
         "S3BucketName":{
 
             "Type": "String",
 
-            "Default": "artifact-test",
+            "Default": "testcftest",
 
             "Description": "Enter name of bucket to store data"
 
         },
 
-        "WebhookName": {
+        #"WebhookName": {
 
-            "Description": "The name of the Webhook",
+           # "Description": "The name of the Webhook",
 
-            "Type": "String",
+            #"Type": "String",
 
-            "Default": "Cync-Nds-Dev-Webhooks",
+            #"Default": "Cync-Nds-Dev-Webhooks",
 
-            "AllowedPattern": "[\\x20-\\x7E]*",
+           # "AllowedPattern": "[\\x20-\\x7E]*",
 
-            "ConstraintDescription": "Can contain only ASCII characters."
+            #"ConstraintDescription": "Can contain only ASCII characters."
 
-        },
+        #},
 
         "RepositoryBranch": {
 
@@ -60,7 +60,7 @@
 
             "Type": "String",
 
-            "Default": "development",
+            "Default": "master",
 
             "AllowedPattern": "[\\x20-\\x7E]*",
 
@@ -70,65 +70,65 @@
 
         
 
-         "CodepipelineArtifactBucket": {
+        # "CodepipelineArtifactBucket": {
 
-            "Type": "String",
+           # "Type": "String",
 
-            "Default": "codepipeline-us-east-1-782480229791",
+           # "Default": "codepipeline-us-east-1-782480229791",
 
-            "Description": "Enter the bucket name where the Codepipeline stage artifacts stores"
+            #"Description": "Enter the bucket name where the Codepipeline stage artifacts stores"
 
-        },
-
-        
+        #},
 
         
 
-        "GitHubSecretName": {
+        
 
-            "Type": "String",
+        #"GitHubSecretName": {
 
-            "Default": "/devops/poc/tokens",
+            #"Type": "String",
 
-            "NoEcho": true
+            #"Default": "/devops/poc/tokens",
 
-        },
+            #"NoEcho": true
 
-        "GitHubSecretKey": {
+        #},
 
-            "Type": "String",
+       # "GitHubSecretKey": {
 
-            "Default": "SCToken",
+           # "Type": "String",
 
-            "NoEcho": true
+           # "Default": "SCToken",
 
-        },
+           # "NoEcho": true
+
+        #},
 
        
 
-        "GitHubOwner": {
+       # "GitHubOwner": {
 
-            "Type": "String"
+           # "Type": "String"
 
-        },
+       # },
 
-        "Authentication": {
+       # "Authentication": {
 
-            "Type": "String",
+            #"Type": "String",
 
-            "Default": "GITHUB_HMAC",
+           # "Default": "GITHUB_HMAC",
 
-            "AllowedValues": [
+           # "AllowedValues": [
 
-                "GITHUB_HMAC",
+               # "GITHUB_HMAC",
 
-                "IP",
+              #  "IP",
 
-                "UNAUTHENTICATED"
+               # "UNAUTHENTICATED"
 
-            ]
+           # ]
 
-        },
+       # },
 
         "JsonPath": {
 
