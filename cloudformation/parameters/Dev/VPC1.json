@@ -11,7 +11,7 @@
   
   {
     "ParameterKey": "SGName",
-    "ParameterValue": "SG1"
+    "ParameterValue": "sg1"
   },
 
   {
@@ -21,7 +21,7 @@
 
   {
     "ParameterKey": "KeyPair",
-    "ParameterValue": "Vikas"
+    "ParameterValue": "Helm"
   },
  
   {
