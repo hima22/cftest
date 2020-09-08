@@ -1,0 +1,31 @@
+[
+  {
+    "ParameterKey": "vpc1cidr",
+    "ParameterValue": "10.0.0.0/24"
+  },
+  
+  {
+    "ParameterKey": "SubnetCIDR",
+    "ParameterValue": "10.0.0.0/28"
+  },
+  
+  {
+    "ParameterKey": "SGName",
+    "ParameterValue": "SG1"
+  },
+
+  {
+    "ParameterKey": "Instance",
+    "ParameterValue": "t2.micro"
+  },
+
+  {
+    "ParameterKey": "KeyPair",
+    "ParameterValue": "Vikas"
+  },
+ 
+  {
+    "ParameterKey": "AMIid",
+    "ParameterValue": "ami-0c322300a1dd5dc79"
+  }
+]
