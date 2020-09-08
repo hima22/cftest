@@ -1,0 +1,63 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+	"EC2ImageId":{
+         "Type":"String",
+         "Default":"ami-0ef2b027d2d107729",
+         "Description":"ImageId for Nginx LaunchConfig"
+      },
+      "EC2InstanceType":{
+         "Type":"String",
+         "Default":"t2.micro",
+         "Description":"Instance type of the Nginx LaunchConfig"
+      },
+      "EC2SubnetId":{
+         "Type": "String",
+         "Default":"subnet-08aec5b79e459c73a",
+         "Description":"Nginx LaunchConfig Subnet ID"
+      },
+      "InstanceRole":{
+         "Type":"String",
+         "Default":"AnsibleRole",
+         "Description":"Name of IAM ROle to be attached to Nginx LaunchConfig"
+      },
+      "EC2SecurityGroupID":{
+         "Type":"String",
+         "Default":"sg-19ef5951",
+         "Description":"SecurityGroup of Nginx LaunchConfig"
+      },
+      "TagValue":{
+	"Type":"String",
+	"Default":"devops-test1",
+	"Description":"Tag value for the Instance"
+	},
+      "KeyPairName":{
+         "Type":"AWS::EC2::KeyPair::KeyName",
+         "Default":"AnsibleKey",
+         "Description":"The EC2 Key Pair to allow SSH"
+	}
+  },
+   "Resources":{ 
+    "instanceapp": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceInitiatedShutdownBehavior": "stop",		    
+        "ImageId": { "Ref" : "EC2ImageId" },
+	
+        "InstanceType": { "Ref" : "EC2InstanceType"},
+        "KeyName": { "Ref" : "KeyPairName" },
+        "Monitoring": "false",
+	"IamInstanceProfile": { "Ref": "InstanceRole" },	
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {"Ref":"TagValue"}
+          }
+        ],
+        "SecurityGroupIds":[{"Ref":"EC2SecurityGroupID"}],
+	"SubnetId":{"Ref":"EC2SubnetId"}
+	}
+       }
+      }
+     }
+
