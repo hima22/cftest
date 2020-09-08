@@ -1,0 +1,89 @@
+Parameters: #Allowes you to pass custom inputs
+  vpc1cidr:
+    Description: Please specify the CIDR range for VPC1
+    Type: String
+    Default: 10.0.0.0/24
+
+  SubnetCIDR:
+    Description: Please specify the CIDR range for app Subnet
+    Type: String
+    Default: 10.0.0.0/28
+
+  SGName:
+    Type: String
+    Default: SG1
+
+  Instance:
+    Type: String
+    Default: t2.micro
+    AllowedValues: [t2.micro,t2.small,t2.medium]
+
+  KeyPair:
+    Type: String
+    Default: 'Vikas'
+
+  AMIid:
+    Type: String
+    Default: ami-0c322300a1dd5dc79 #RHEL ami from US East (N.Virginia) is considered. Default Value should be rewrite for other Regions.
+
+Resources:
+  VPC1:  #This resource creates VPC1
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref vpc1cidr
+      Tags:
+        - Key: Name
+          Value: VPC1
+
+  Subnet1: #This resource creates Subnet1
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC1
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]  #This Intrensic Function selects us-east-1a AZ
+      CidrBlock: !Ref SubnetCIDR
+      Tags:
+        - Key: Name
+          Value: app
+
+  InternetGateway: #This resource create IG
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Name
+        Value: VPC1_IG
+
+  IGAttachment: #This resource attache the created IG to specified VPC in this case i.e, VPC1
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC1
+
+  SecurityGroup: #This resource creates the security Group with tcp/IP allows traffic on port 22 cidr 17.0.0.0/8
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Ref SGName
+      GroupDescription: This Security Group allows only SSH traffic from 17.0.0.0/8 CIDR
+      VpcId: !Ref VPC1
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 17.0.0.0/8
+
+  AppInstance: #This resource create new EC2 Instance in specified region, VPC, Subnet.
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMIid    #We can use !FindInMap and specify based on Region, but for parameterizing !Ref is used. Rewrite default AMI based on your Region
+      KeyName: !Ref KeyPair
+      InstanceType: !Ref Instance
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      SubnetId: !Ref Subnet1
+      Tags:
+      - Key: Name
+        Value: app1
+
+  EIP: #This resouce creates Elastic IP and assign to EC2
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref AppInstance
