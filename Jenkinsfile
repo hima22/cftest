@@ -8,7 +8,7 @@ node {
        }
         stage('service and cluster update'){
             sh 'aws s3 cp ./cloudformation/templates/VPC1.yml s3://newcftest/cloudformation/templates/VPC1.yml'
-            sh 'aws s3 cp ./cloudformation/parameters/Dev/VPC1.json s3://newcftest/cloudformation/templates/VPC1.json'
+            sh 'aws s3 cp ./cloudformation/parameters/Dev/VPC1.json s3://newcftest/cloudformation/parameters/Dev/VPC1.json'
             sh 'aws s3 cp ./Jenkinsfile s3://newcftest/'
         }
 
