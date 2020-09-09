@@ -5,6 +5,8 @@ node {
         }
         stage('pull code from scm'){
             checkout scm
+            shortCommit = sh(returnStdout: true, script: "git log -n 1 --pretty=format:'%h'").trim()
+
        }
         stage('service and cluster update'){
             sh 'aws s3 cp ./cloudformation/templates/VPC1.yml s3://newcftest/cloudformation/templates/VPC1.yml'
